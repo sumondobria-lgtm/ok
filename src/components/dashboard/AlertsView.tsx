@@ -3,7 +3,7 @@ import { supabase, Device, RealTimeAlert, KeywordAlert } from '../../lib/supabas
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../contexts/ToastContext';
 import { format } from 'date-fns';
-import { Bell, MapPin, Battery, Wifi, Lock, TriangleAlert as AlertTriangle, CircleCheck as CheckCircle, Trash2, Plus, Search, RefreshCw, Loader as Loader2, ListFilter as Filter, Eye } from 'lucide-react';
+import { Bell, MapPin, Battery, Wifi, Lock, AlertTriangle, CheckCircle, Trash2, Plus, Search, RefreshCw, Loader as Loader2, ListFilter as Filter, Eye } from 'lucide-react';
 
 export function AlertsView() {
   const { user } = useAuth();

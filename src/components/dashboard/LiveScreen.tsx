@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { supabase, Device, ScreenStreamSession } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { format } from 'date-fns';
-import { MonitorPlay, Video, VideoOff, Loader as Loader2, TriangleAlert as AlertTriangle, Info, Circle, Clock } from 'lucide-react';
+import { MonitorPlay, Video, VideoOff, Loader as Loader2, AlertTriangle, Info, Circle, Clock } from 'lucide-react';
 
 export function LiveScreen() {
   const { } = useAuth();

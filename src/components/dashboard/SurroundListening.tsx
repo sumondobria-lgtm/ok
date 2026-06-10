@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { supabase, Device } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { format } from 'date-fns';
-import { Mic, Play, Square, Loader as Loader2, TriangleAlert as AlertTriangle, Volume2, Clock, Smartphone, RefreshCw, Download, Info } from 'lucide-react';
+import { Mic, Play, Square, Loader as Loader2, AlertTriangle, Volume2, Clock, Smartphone, RefreshCw, Download, Info } from 'lucide-react';
 
 type AmbientRecording = {
   id: string;

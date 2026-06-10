@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase, Device, Screenshot } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { format } from 'date-fns';
-import { Camera as CameraIcon, RefreshCw, Download, Loader as Loader2, TriangleAlert as AlertTriangle, Info, Image as ImageIcon, X } from 'lucide-react';
+import { Camera as CameraIcon, RefreshCw, Download, Loader as Loader2, AlertTriangle, Info, Image as ImageIcon, X } from 'lucide-react';
 
 export function ScreenshotsView() {
   const { } = useAuth();
