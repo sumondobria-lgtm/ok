@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase, Device, MediaFile } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { format } from 'date-fns';
-import { Image, Video, Search, Download, Trash2, Grid, List, ExternalLink, Loader2, X } from 'lucide-react';
+import { Image, Video, Search, Download, Trash2, Grid2x2 as Grid, List, ExternalLink, Loader2, X } from 'lucide-react';
 
 export function MediaGallery() {
   const { } = useAuth();
