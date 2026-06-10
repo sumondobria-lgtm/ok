@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { supabase, Profile, Subscription, SupportTicket } from '../../lib/supabase';
+import { supabase, Profile, Subscription, SupportTicket, Device } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../contexts/ToastContext';
-import { format } from 'date-fns';
+import { format, formatDistanceToNow } from 'date-fns';
 import {
   Users,
   DollarSign,
@@ -12,13 +12,17 @@ import {
   UserCheck,
   UserX,
   Ticket,
+  Smartphone,
+  Battery,
+  Wifi,
+  WifiOff,
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 
 export function AdminPanel() {
   const { profile } = useAuth();
   const { showToast } = useToast();
-  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'subscriptions' | 'support'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'devices' | 'subscriptions' | 'support'>('overview');
   const [stats, setStats] = useState({
     totalUsers: 0,
     activeUsers: 0,
@@ -26,8 +30,12 @@ export function AdminPanel() {
     activeSubscriptions: 0,
     pendingTickets: 0,
     totalDevices: 0,
+    onlineDevices: 0,
+    offlineDevices: 0,
+    lowBatteryDevices: 0,
   });
   const [users, setUsers] = useState<Profile[]>([]);
+  const [devices, setDevices] = useState<(Device & { profiles: { email: string; full_name: string } } | null)[]>([]);
   const [subscriptions, setSubscriptions] = useState<(Subscription & { profiles: { email: string; full_name: string } })[]>([]);
   const [tickets, setTickets] = useState<(SupportTicket & { profiles: { email: string; full_name: string } })[]>([]);
   const [searchUser, setSearchUser] = useState('');
@@ -38,6 +46,7 @@ export function AdminPanel() {
     if (profile?.role === 'admin') {
       fetchStats();
       fetchUsers();
+      fetchDevices();
       fetchSubscriptions();
       fetchTickets();
     }
@@ -47,6 +56,9 @@ export function AdminPanel() {
     const { count: totalUsers } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
     const { count: activeUsers } = await supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('subscription_status', 'active');
     const { count: totalDevices } = await supabase.from('devices').select('*', { count: 'exact', head: true });
+    const { count: onlineDevices } = await supabase.from('devices').select('*', { count: 'exact', head: true }).eq('is_online', true);
+    const { count: offlineDevices } = await supabase.from('devices').select('*', { count: 'exact', head: true }).eq('is_online', false);
+    const { count: lowBatteryDevices } = await supabase.from('devices').select('*', { count: 'exact', head: true }).lt('battery_level', 20);
     const { count: activeSubscriptions } = await supabase.from('subscriptions').select('*', { count: 'exact', head: true }).eq('status', 'active');
     const { count: pendingTickets } = await supabase.from('support_tickets').select('*', { count: 'exact', head: true }).eq('status', 'open');
 
@@ -60,7 +72,18 @@ export function AdminPanel() {
       activeSubscriptions: activeSubscriptions || 0,
       pendingTickets: pendingTickets || 0,
       totalDevices: totalDevices || 0,
+      onlineDevices: onlineDevices || 0,
+      offlineDevices: offlineDevices || 0,
+      lowBatteryDevices: lowBatteryDevices || 0,
     });
+  };
+
+  const fetchDevices = async () => {
+    const { data } = await supabase
+      .from('devices')
+      .select('*, profiles!devices_user_id_fkey(email, full_name)')
+      .order('last_sync', { ascending: true });
+    setDevices(data || []);
   };
 
   const fetchUsers = async () => {
@@ -147,6 +170,7 @@ export function AdminPanel() {
           {[
             { key: 'overview', label: 'Overview', icon: Activity },
             { key: 'users', label: 'Users', icon: Users },
+            { key: 'devices', label: 'Devices', icon: Smartphone },
             { key: 'subscriptions', label: 'Subscriptions', icon: DollarSign },
             { key: 'support', label: 'Support', icon: Ticket },
           ].map((tab) => (
@@ -211,6 +235,37 @@ export function AdminPanel() {
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Total Devices</p>
                   <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.totalDevices}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Device Health */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-xl p-4 border border-emerald-200 dark:border-emerald-800">
+              <div className="flex items-center gap-3">
+                <Wifi className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                <div>
+                  <p className="text-sm text-emerald-700 dark:text-emerald-300">Online</p>
+                  <p className="text-xl font-bold text-emerald-900 dark:text-emerald-100">{stats.onlineDevices}</p>
+                </div>
+              </div>
+            </div>
+            <div className="bg-gray-50 dark:bg-slate-700/50 rounded-xl p-4 border border-gray-200 dark:border-slate-600">
+              <div className="flex items-center gap-3">
+                <WifiOff className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                <div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Offline</p>
+                  <p className="text-xl font-bold text-gray-900 dark:text-white">{stats.offlineDevices}</p>
+                </div>
+              </div>
+            </div>
+            <div className="bg-red-50 dark:bg-red-900/20 rounded-xl p-4 border border-red-200 dark:border-red-800">
+              <div className="flex items-center gap-3">
+                <Battery className="w-5 h-5 text-red-600 dark:text-red-400" />
+                <div>
+                  <p className="text-sm text-red-700 dark:text-red-300">Low Battery</p>
+                  <p className="text-xl font-bold text-red-900 dark:text-red-100">{stats.lowBatteryDevices}</p>
                 </div>
               </div>
             </div>
@@ -324,6 +379,90 @@ export function AdminPanel() {
               </tbody>
             </table>
           </div>
+        </div>
+      )}
+
+      {/* Devices Tab */}
+      {activeTab === 'devices' && (
+        <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm overflow-hidden">
+          <table className="w-full">
+            <thead className="bg-gray-50 dark:bg-slate-700">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Device</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Owner</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Status</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Battery</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Last Sync</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200 dark:divide-slate-700">
+              {devices.map((device: any) => (
+                <tr key={device.id}>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                        device.device_type === 'android'
+                          ? 'bg-green-100 dark:bg-green-900/30 text-green-600'
+                          : 'bg-gray-100 dark:bg-gray-700 text-gray-600'
+                      }`}>
+                        <Smartphone className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-900 dark:text-white">{device.device_name}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">{device.device_type}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <p className="text-sm text-gray-900 dark:text-white">{device.profiles?.full_name || 'Unknown'}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{device.profiles?.email}</p>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs ${
+                      device.is_online
+                        ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400'
+                        : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
+                    }`}>
+                      {device.is_online ? (
+                        <>
+                          <Wifi className="w-3 h-3" />
+                          Online
+                        </>
+                      ) : (
+                        <>
+                          <WifiOff className="w-3 h-3" />
+                          Offline
+                        </>
+                      )}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-2">
+                      <div className={`w-6 h-3 rounded-full ${
+                        device.battery_level > 50 ? 'bg-emerald-500' :
+                        device.battery_level > 20 ? 'bg-amber-500' : 'bg-red-500'
+                      }`} style={{ width: `${Math.max(6, (device.battery_level || 0) / 100 * 24)}px` }} />
+                      <span className={`text-xs ${
+                        device.battery_level !== null && device.battery_level < 20
+                          ? 'text-red-600 dark:text-red-400 font-medium'
+                          : 'text-gray-500 dark:text-gray-400'
+                      }`}>
+                        {device.battery_level !== null ? `${device.battery_level}%` : 'N/A'}
+                      </span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <p className="text-sm text-gray-900 dark:text-white">
+                      {device.last_sync ? formatDistanceToNow(new Date(device.last_sync), { addSuffix: true }) : 'Never'}
+                    </p>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {devices.length === 0 && (
+            <div className="p-8 text-center text-gray-500 dark:text-gray-400">No devices found</div>
+          )}
         </div>
       )}
 

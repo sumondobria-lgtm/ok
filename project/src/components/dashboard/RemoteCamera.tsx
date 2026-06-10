@@ -2,19 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase, Device, RemoteCapture } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { format } from 'date-fns';
-import {
-  Camera,
-  CameraIcon,
-  Video,
-  RefreshCw,
-  Download,
-  RotateCcw,
-  Loader2,
-  AlertTriangle,
-  Info,
-  Play,
-  Square,
-} from 'lucide-react';
+import { Camera, Camera as CameraIcon, Video, RefreshCw, Download, RotateCcw, Loader as Loader2, TriangleAlert as AlertTriangle, Info, Play } from 'lucide-react';
 
 export function RemoteCamera() {
   const { } = useAuth();
@@ -98,13 +86,6 @@ export function RemoteCamera() {
       default:
         return null;
     }
-  };
-
-  const formatFileSize = (bytes: number | null) => {
-    if (!bytes) return 'Unknown';
-    if (bytes < 1024) return `${bytes} B`;
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
   return (

@@ -18,6 +18,7 @@ import { RemoteCamera } from './components/dashboard/RemoteCamera';
 import { CallRecorder } from './components/dashboard/CallRecorder';
 import { ScreenshotsView } from './components/dashboard/ScreenshotsView';
 import { LiveScreen } from './components/dashboard/LiveScreen';
+import { AlertsView } from './components/dashboard/AlertsView';
 import { AdminPanel } from './components/admin/AdminPanel';
 import { ReactNode } from 'react';
 
@@ -75,6 +76,7 @@ function AppRoutes() {
         <Route path="call-recorder" element={<CallRecorder />} />
         <Route path="screenshots" element={<ScreenshotsView />} />
         <Route path="live-screen" element={<LiveScreen />} />
+        <Route path="alerts" element={<AlertsView />} />
       </Route>
       <Route
         path="/admin"

@@ -241,3 +241,56 @@ export type ScreenStreamSession = {
   ended_at: string | null;
   created_at: string;
 };
+
+export type RealTimeAlert = {
+  id: string;
+  user_id: string;
+  device_id: string;
+  alert_type: 'geofence_enter' | 'geofence_exit' | 'keyword' | 'suspicious_app' | 'blocked_access' | 'low_battery' | 'device_offline';
+  severity: 'low' | 'normal' | 'high' | 'critical';
+  title: string;
+  message: string;
+  metadata: Record<string, unknown> | null;
+  is_read: boolean;
+  is_resolved: boolean;
+  resolved_at: string | null;
+  resolved_by: string | null;
+  created_at: string;
+};
+
+export type KeywordAlert = {
+  id: string;
+  user_id: string;
+  keyword: string;
+  is_case_sensitive: boolean;
+  alert_severity: 'low' | 'normal' | 'high' | 'critical';
+  is_active: boolean;
+  created_at: string;
+};
+
+export type Admin2FACode = {
+  id: string;
+  user_id: string;
+  code_hash: string;
+  is_used: boolean;
+  used_at: string | null;
+  created_at: string;
+  expires_at: string;
+};
+
+export type UserNotificationSettings = {
+  id: string;
+  user_id: string;
+  geofence_alerts: boolean;
+  message_alerts: boolean;
+  call_alerts: boolean;
+  app_block_alerts: boolean;
+  keyword_alerts: boolean;
+  weekly_reports: boolean;
+  low_battery_alerts: boolean;
+  device_offline_alerts: boolean;
+  email_notifications: boolean;
+  push_notifications: boolean;
+  created_at: string;
+  updated_at: string;
+};

@@ -1,35 +1,12 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
-import {
-  Shield,
-  LayoutDashboard,
-  MapPin,
-  MessageSquare,
-  Phone,
-  AppWindow,
-  Keyboard,
-  Globe,
-  Image,
-  Settings,
-  LogOut,
-  Menu,
-  X,
-  Moon,
-  Sun,
-  Bell,
-  User,
-  ChevronDown,
-  Mic,
-  Camera,
-  FileAudio,
-  CameraIcon,
-  MonitorPlay,
-} from 'lucide-react';
+import { Shield, LayoutDashboard, MapPin, MessageSquare, Phone, AppWindow, Keyboard, Globe, Image, Settings, LogOut, Menu, X, Moon, Sun, Bell, User, ChevronDown, Mic, Camera, File as FileAudio, Camera as CameraIcon, MonitorPlay } from 'lucide-react';
 import { Link, useLocation, Outlet, useNavigate } from 'react-router-dom';
 
 const navItems = [
   { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+  { path: '/dashboard/alerts', icon: Bell, label: 'Alerts' },
   { path: '/dashboard/location', icon: MapPin, label: 'Location' },
   { path: '/dashboard/messages', icon: MessageSquare, label: 'Messages' },
   { path: '/dashboard/calls', icon: Phone, label: 'Call Logs' },
